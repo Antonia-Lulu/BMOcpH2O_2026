@@ -1,0 +1,241 @@
+# Start up file for citcom using getpar.
+# Implicit Labrosse-2025 coupling BMO  (init_age_distr=160).
+
+	datafile="/public/home/liuh/antonia/CitcomCU_MO_2017/BMO/H2OcpBMO/input3Ref_XFe0s/H2OBMOLifeT_TLdw1/A"
+	oldfile="/public/home/liuh/antonia/CitcomCU_MO_2017/BMO/H2OcpBMO/input3Ref_XFe0s/H2OBMOLifeT_TLdw1/A"
+        restart=0
+        restart_timesteps=0
+
+        rayleigh=4.50e7
+	Q0=0.0
+
+	stokes_flow_only=0
+	maxstep=120000
+	maxtotstep=120000
+	storage_spacing=100
+	update_every_steps=1
+        tracer_store_every=120000
+
+# CFL control & std_timestep
+	fixed_timestep=0.0
+	inittreduct=0.1
+	n_early_steps=50
+	CFL_number=0.3
+
+# REQUIRED INFORMATION:
+	regular_grid=0
+
+	z_lmantle=0.5
+	z_lith=0.25
+
+        z_grid_layers=3
+        zz=0.5,0.9,1.0
+        nz=121,223,277
+
+        x_grid_layers=1
+        xx=1.0
+        nx=257
+
+        y_grid_layers=1
+        yy=1.0
+        ny=1
+
+	plate_velocity=0.
+	plate_age=100.
+	plume_radius=1.
+	plume_DT=0
+	plume_x=800
+	plume_y=0
+
+        dimenx=1.0
+        dimenz=1.0
+        dimeny=0.0
+
+	nprocx=4	nprocz=1	nprocy=1
+
+        mgunitz=276
+        mgunitx=256
+        mgunity=1
+        levels=1
+
+	Viscosity=system
+	rheol=0 TDEPV=off
+	VISC_UPDATE=on
+
+	num_mat=3
+	viscE=0.0,0.0,0.0
+	viscZ=0.0,0.0,0.0
+	viscT=273,273,273
+ 	visc0=1.0e0,1.0e0,1.0e0
+
+	SDEPV=off
+	sdepv_misfit=0.010
+        sdepv_expt=1,1,1
+        sdepv_trns=1.e0,1.e0,1.e0
+
+	visc_smooth_cycles=3
+
+        VMIN=off visc_min=5.0e-2
+        VMAX=off visc_max=5.0e6
+
+	Problem=convection
+	Geometry=cart2d
+	Solver=multigrid node_assemble=1
+
+	aug_lagr=on
+	aug_number=.1111
+	precond=on
+	orthogonal=off
+
+# TRACER INFO
+        tracers_used=1
+        tracer_distr=0
+        tractest=8
+        tracer_density=2560
+	tracer_array_buf_factor=1.0
+
+        melttracers_used=0
+        melttracer_density=2560
+
+        ntracfunc=6             #6
+        tracfunc=15,2,80,81,82,83  # tracfunc 80 = FeO mass fraction X_Fe (dynamic BMO crystallisation)
+                                   # tracfunc 81 = H2O mass fraction C_w  (dynamic BMO crystallisation)
+                                   # tracfunc 83 = HPE mass fraction c_HPE (dynamic BMO crystallisation)
+        interp_e2t=14,0,0,0,0,0    # interp_e2t=0 for 80/81/82/83: updated by updatetrac()
+        interp_t2e=1,1,1,1,0,1     # interp_t2e=1 for 80/81/83 (mapped to element for output); 0 for 82
+        ntracbuoyfunc=2
+        comporayl=0.0,0.0,0.0,0.0,0.0,0.0
+
+        comporheo=0.0
+        tracer_Warn=0
+
+# DIMENSIONAL INFORMATION (UPWARD CRYS)
+	MO_depth=1904.90         # initial_depth of BMO ~995 km
+        layerd=2900.0
+	ReferenceT=4000.0
+	MO_temperature=3324     # initial T_BOMB  - Fiquet2010
+        density=4000.0          # bg-density
+        gravacc=9.8
+        thermdiff=1.0e-6
+        thermexp=1.5e-5
+	cp=1000.
+	wdensity=0.0
+
+# BMO IMPLICIT COUPLING (Labrosse 2025) 
+        init_age_distr=160      # 160 = self-consistent BMO front evolution
+        BMO_implicit_mode=1     # enable the implicit Labrosse coupling
+        BMO_xi_l0=0.10          # initial bulk liquid Fe# iron content
+        BMO_partition_D=0.10    # Fe-Mg exchange coefficient K_Fe (<1); input name unchanged
+        BMO_TL_dPdim=0.73       # const
+        BMO_TL_dPdim_nlayers=8  # Depth-layered mP from Fiquet 2010； uniform layers
+        BMO_TL_dPdim_layers=0.6465,0.5927,0.5465,0.5083,0.4225,0.3557,0.2955,0.2075
+        BMO_TL_dxi=-0.125       # m_xi = (dT_L/dw_FeO)/dT per unit FeO MASS fraction (Labrosse 2024)
+        BMO_MgSi_mode=1         # 0=const Mg/Si; 1=table Mg/Si(Fe#) from BMO_MgSi_table_file (Route 1)
+        BMO_Mg_Si=1.25          # oxide-molar Mg/Si for Fe#->w_FeO ternary map (Du 2019, Fe#~0.1); liquidus only
+        BMO_MgSi_table_file=/public/home/liuh/antonia/CitcomCU_MO_2017/BMO/H2OcpBMO/input3Ref_XFe0s/BMO_MgSi_vs_FeNum.dat   
+                                # two-col (Fe#  Mg/Si), needed only when BMO_MgSi_mode=1
+        BMO_St=1.0              # Stefan number L/(Cp*dT) — used only if BMO_dS_Cp=0
+        
+        BMO_heat_in_TW=0        # 1: BMO_Qcmb and BMO_HBMO are total power [TW]
+        BMO_Qcmb=0.0            # Q_CMB into BMO [TW] (auto -> dimensionless)
+        BMO_HBMO=0.0            # legacy const radiogenic heating (0 = use HPE tracer below)
+
+        BMO_Chpe_l0=5.0e-3          # initial bulk HPE mass fraction c_HPE,0 (Table 1)
+        BMO_Dhpe=0.01               # K_HPE solid/liquid partition coefficient
+        BMO_tau_hpe=0.02            # dimensionless HPE half-life tau_hpe (Table 1)
+        BMO_H0_hpe=5.0              # ref specific heating at Chpe_l0; Q_R_init=H0*s0=4 at s0=0.5
+        BMO_hpe_mantle_on=1.0       # 1:hpe heat the solid mantle;  0:only paticipate BMO eqs
+
+        BMO_density_mode=1          # 1 = literature formula rho/rho_0=1+X_Fe*(0.28+0.04*n); 0 = legacy
+        BMO_rho_nv_prem=1           # 1 = rho_nv(z)=BMO_rho_solid_ref*PREM(z)/PREM(MO_depth)
+        BMO_rho_solid_ref=4750.0    # rho_0: anhydrous non-volatile base density [kg/m³] at MO_depth
+        BMO_rho_melt=4750.0         # kept for reference (not used in mode=1 formula)
+        BMO_n_spin=0.8              # low-spin fraction n in (0.28+0.04*n); Karki 2018
+        BMO_XFe_ref=0.10            # Fe# fallback when tracfunc 80 inactive (= BMO_xi_l0)
+        BMO_alpha_water=-0.97       # Du+2019 alpha per wt% H2O in rho/rho0-1 = alpha*X_H2O[wt%]
+
+        BMO_Cw_l0=0.0e-4     # bulk H2O mass fraction X_H2O (NOT melt); melt from Du 2019: X/(phi0+Dw*(1-phi0))
+        BMO_Dw=1.0e-3        # K_H2O solid/liquid partition coefficient (~1e-3, Du et al. 2019)
+        BMO_TL_dCw=-1.0      # dT_L/dC_w liquidus slope for water (dimensionless) 
+
+        BMO_dS_Cp=0.3        # Dynamic Stefan number St = T_BOMB * (Ds/Cp); BMO_dS_Cp = Ds/Cp = L/(T_m_ref*Cp)
+                             # Physical: L~800e3 J/kg, T_m~4000 K, Cp~1000 J/(kg K) -> ~0.3
+
+        BMO_z0_init=-1
+        BMO_TL0=-1
+
+# LABROSSE-2025 CORE-BMO THERMAL COUPLING (Eq. 37-40)
+        BMO_core_coupling=1             # 0=off; 1=Labrosse-2025 core coupling
+        BMO_core_rhoN=12451.0           # core centre density rho_N [kg/m3]  FROM Labrosse2015
+        BMO_core_CpN=750.0              # core specific heat C_pN [J/kg/K]
+        BMO_core_Lp_km=8039.0           # core pressure scale height L_p [km]
+        BMO_core_Ap=0.484               # core structure parameter A_p
+        BMO_core_gamma=1.5              # Gruneisen parameter gamma
+        BMO_core_rcmb_km=3480.0         # CMB radius [km]
+
+        MO_coolingtime=5.4033408e-04    # MO_coolingtime is now only used for the early-step CFL fallback
+
+# BOUNDARY CONDITIONS
+        randomT=0.01
+        timdepTbc=1
+
+	topvbc=0
+		topvbxval=0.0
+		topvbyval=0.0
+	botvbc=3                # IMPORTANT: free-slip impenetrable (u_z=0) front
+		botvbxval=0.0
+		botvbyval=0.0
+        closedbot=1
+        xminvxbc=1
+        xminvybc=0
+        xminvzbc=0
+        xmaxvxbc=1
+        xmaxvybc=0
+        xmaxvzbc=0
+        yminvxbc=0
+        yminvybc=0
+        yminvzbc=0
+        ymaxvxbc=0
+        ymaxvybc=0
+        ymaxvzbc=0
+
+        xmintbc=0
+        xmaxtbc=0
+        ymintbc=0
+        ymaxtbc=0
+
+	toptbc=1 bottbc=2             # bottbc=2 -> Dirichlet T=MO_temperature applied
+	toptbcval=0.0 bottbcval=1.0   
+	periodicx=off
+	periodicy=off
+	flowthroughx=off
+	flowthroughy=off
+
+# SOLVER RELATED MATTERS
+	maxsub=1
+	viterations=2
+	mg_cycle=1
+	down_heavy=2
+	up_heavy=2
+	vlowstep=2000
+	vhighstep=3
+	piterations=375
+	accuracy=1.0e-3
+	tole_compressibility=1e-7
+
+        num_perturbations=1
+        perturbmag=0.0
+        perturbk=1.0
+
+# Tuning of energy equation
+	adv_sub_iterations=2
+	finetunedt=0.7
+        PC_scheme=1
+
+# Data input and program debugging
+	DESCRIBE=off
+	BEGINNER=off
+	VERBOSE=off
+	verbose=off
+	COMPRESS=off
+	see_convergence=1
